@@ -1,37 +1,12 @@
-version: 2.1
-setup: true
+version: '2.1'
 orbs:
-  orb-tools: circleci/orb-tools@11.1
-  shellcheck: circleci/shellcheck@3.1
-
-filters: &filters
-  tags:
-    only: /.*/
-
+  win: circleci/windows@4.1
+jobs:
+  build:
+    executor: win/server-2019-cuda
+    steps:
+      - run: 'Write-Host ''Hello, Windows'''
 workflows:
-  lint-pack:
+  my-workflow:
     jobs:
-      - orb-tools/lint:
-          filters: *filters
-      - orb-tools/pack:
-          filters: *filters
-      - orb-tools/review:
-          filters: *filters
-      - shellcheck/check:
-          exclude: SC2148,SC2038,SC2086,SC2002,SC2016
-          filters: *filters
-      - orb-tools/publish:
-          orb-name: circleci/windows
-          vcs-type: << pipeline.project.type >>
-          requires:
-            [orb-tools/lint, orb-tools/review, orb-tools/pack, shellcheck/check]
-          # Use a context to hold your publishing token.
-          context: orb-publisher
-          filters: *filters
-          github-token: GHI_TOKEN
-      # Triggers the next workflow in the Orb Development Kit.
-      - orb-tools/continue:
-          pipeline-number: << pipeline.number >>
-          vcs-type: << pipeline.project.type >>
-          requires: [orb-tools/publish]
-          filters: *filters
+      - build
